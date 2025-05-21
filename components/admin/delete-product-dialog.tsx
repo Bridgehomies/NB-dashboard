@@ -33,7 +33,7 @@ export function DeleteProductDialog({ open, onClose, product, onDelete }: Delete
         </DialogHeader>
         <div className="py-4">
           <p className="font-medium">{product.name}</p>
-          <p className="text-sm text-gray-500">ID: {product.id}</p>
+          <p className="text-sm text-gray-500">ID: {product._id}</p>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
