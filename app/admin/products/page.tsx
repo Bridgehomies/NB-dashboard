@@ -360,64 +360,63 @@
 //   )
 // }
 
+"use client";
 
-"use client"
-
-import { useEffect, useState } from "react"
-import Image from "next/image"
-import { Plus, Search, MoreHorizontal, Edit, Trash, Tag } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import { Plus, Search, MoreHorizontal, Edit, Trash, Tag } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { AddProductDialog } from "@/components/admin/add-product-dialog"
-import { EditProductDialog } from "@/components/admin/edit-product-dialog"
-import { DeleteProductDialog } from "@/components/admin/delete-product-dialog"
-import { SaleProductDialog } from "@/components/admin/sale-product-dialog"
+} from "@/components/ui/select";
+import { AddProductDialog } from "@/components/admin/add-product-dialog";
+import { EditProductDialog } from "@/components/admin/edit-product-dialog";
+import { DeleteProductDialog } from "@/components/admin/delete-product-dialog";
+import { SaleProductDialog } from "@/components/admin/sale-product-dialog";
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [categoryFilter, setCategoryFilter] = useState("all")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [sortBy, setSortBy] = useState("newest")
-  const [selectedProduct, setSelectedProduct] = useState<any>(null)
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("newest");
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
 
-  const [isAddProductOpen, setIsAddProductOpen] = useState(false)
-  const [isEditProductOpen, setIsEditProductOpen] = useState(false)
-  const [isDeleteProductOpen, setIsDeleteProductOpen] = useState(false)
-  const [isSaleProductOpen, setIsSaleProductOpen] = useState(false)
+  const [isAddProductOpen, setIsAddProductOpen] = useState(false);
+  const [isEditProductOpen, setIsEditProductOpen] = useState(false);
+  const [isDeleteProductOpen, setIsDeleteProductOpen] = useState(false);
+  const [isSaleProductOpen, setIsSaleProductOpen] = useState(false);
 
   // Fetch products from backend
   const fetchProducts = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/products")
-      const data = await res.json()
-      setProducts(data)
+      const res = await fetch("http://localhost:5000/api/products");
+      const data = await res.json();
+      setProducts(data);
     } catch (error) {
-      console.error("Failed to fetch products", error)
+      console.error("Failed to fetch products", error);
     }
-    setLoading(false)
-  }
+    setLoading(false);
+  };
 
   useEffect(() => {
-    fetchProducts()
-  }, [])
+    fetchProducts();
+  }, []);
 
   // Backend actions
   const addProduct = async (product: any) => {
@@ -425,25 +424,25 @@ export default function ProductsPage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(product),
-    })
-    fetchProducts()
-  }
+    });
+    fetchProducts();
+  };
 
   const updateProduct = async (product: any) => {
     await fetch(`http://localhost:5000/api/products/${product._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(product),
-    })
-    fetchProducts()
-  }
+    });
+    fetchProducts();
+  };
 
   const deleteProduct = async (id: string) => {
-    await fetch(`http://localhost:5000/products/${id}`, {
+    await fetch(`http://localhost:5000/api/products/${id}`, {
       method: "DELETE",
-    })
-    fetchProducts()
-  }
+    });
+    fetchProducts();
+  };
 
   const toggleProductSale = async (id: string, salePrice?: number) => {
     await fetch(`http://localhost:5000/api/products/${id}`, {
@@ -453,9 +452,9 @@ export default function ProductsPage() {
         isSale: salePrice ? true : false,
         salePrice: salePrice || null,
       }),
-    })
-    fetchProducts()
-  }
+    });
+    fetchProducts();
+  };
 
   // Filter & Sort
   const filteredProducts = products
@@ -464,26 +463,30 @@ export default function ProductsPage() {
         searchQuery &&
         !product.name.toLowerCase().includes(searchQuery.toLowerCase())
       )
-        return false
+        return false;
       if (categoryFilter !== "all" && product.category !== categoryFilter)
-        return false
-      if (statusFilter === "inStock" && !product.inStock) return false
-      if (statusFilter === "outOfStock" && product.inStock) return false
-      if (statusFilter === "onSale" && !product.isSale) return false
-      if (statusFilter === "new" && !product.isNew) return false
-      return true
+        return false;
+      if (statusFilter === "inStock" && !product.inStock) return false;
+      if (statusFilter === "outOfStock" && product.inStock) return false;
+      if (statusFilter === "onSale" && !product.isSale) return false;
+      if (statusFilter === "new" && !product.isNew) return false;
+      return true;
     })
     .sort((a, b) => {
       if (sortBy === "newest")
-        return new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime()
+        return (
+          new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime()
+        );
       if (sortBy === "oldest")
-        return new Date(a.dateAdded).getTime() - new Date(b.dateAdded).getTime()
-      if (sortBy === "priceHigh") return b.price - a.price
-      if (sortBy === "priceLow") return a.price - b.price
-      if (sortBy === "nameAZ") return a.name.localeCompare(b.name)
-      if (sortBy === "nameZA") return b.name.localeCompare(a.name)
-      return 0
-    })
+        return (
+          new Date(a.dateAdded).getTime() - new Date(b.dateAdded).getTime()
+        );
+      if (sortBy === "priceHigh") return b.price - a.price;
+      if (sortBy === "priceLow") return a.price - b.price;
+      if (sortBy === "nameAZ") return a.name.localeCompare(b.name);
+      if (sortBy === "nameZA") return b.name.localeCompare(a.name);
+      return 0;
+    });
 
   return (
     <div className="space-y-6">
@@ -585,7 +588,9 @@ export default function ProductsPage() {
                         />
                         <div>
                           <div className="font-medium">{product.name}</div>
-                          <div className="text-xs text-gray-500">ID: {product._id}</div>
+                          <div className="text-xs text-gray-500">
+                            ID: {product._id}
+                          </div>
                         </div>
                       </div>
                     </td>
@@ -593,8 +598,12 @@ export default function ProductsPage() {
                     <td className="px-4 py-4">
                       {product.isSale ? (
                         <div>
-                          <div className="text-accent font-semibold">${product.salePrice.toFixed(2)}</div>
-                          <div className="text-xs line-through text-gray-500">${product.price.toFixed(2)}</div>
+                          <div className="text-accent font-semibold">
+                            ${product.salePrice.toFixed(2)}
+                          </div>
+                          <div className="text-xs line-through text-gray-500">
+                            ${product.price.toFixed(2)}
+                          </div>
                         </div>
                       ) : (
                         <div>${product.price.toFixed(2)}</div>
@@ -602,11 +611,32 @@ export default function ProductsPage() {
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex gap-1 flex-wrap">
-                        <Badge variant="outline" className={`border ${product.inStock ? "text-green-700 bg-green-50" : "text-red-700 bg-red-50"}`}>
+                        <Badge
+                          variant="outline"
+                          className={`border ${
+                            product.inStock
+                              ? "text-green-700 bg-green-50"
+                              : "text-red-700 bg-red-50"
+                          }`}
+                        >
                           {product.inStock ? "In Stock" : "Out of Stock"}
                         </Badge>
-                        {product.isNew && <Badge variant="outline" className="text-blue-700 bg-blue-50">New</Badge>}
-                        {product.isSale && <Badge variant="outline" className="text-purple-700 bg-purple-50">Sale</Badge>}
+                        {product.isNew && (
+                          <Badge
+                            variant="outline"
+                            className="text-blue-700 bg-blue-50"
+                          >
+                            New
+                          </Badge>
+                        )}
+                        {product.isSale && (
+                          <Badge
+                            variant="outline"
+                            className="text-purple-700 bg-purple-50"
+                          >
+                            Sale
+                          </Badge>
+                        )}
                       </div>
                     </td>
                     <td className="px-4 py-4 text-sm text-gray-500">
@@ -620,24 +650,31 @@ export default function ProductsPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => {
-                            setSelectedProduct(product)
-                            setIsEditProductOpen(true)
-                          }}>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setSelectedProduct(product);
+                              setIsEditProductOpen(true);
+                            }}
+                          >
                             <Edit className="w-4 h-4 mr-2" />
                             Edit
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => {
-                            setSelectedProduct(product)
-                            setIsSaleProductOpen(true)
-                          }}>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setSelectedProduct(product);
+                              setIsSaleProductOpen(true);
+                            }}
+                          >
                             <Tag className="w-4 h-4 mr-2" />
                             {product.isSale ? "Update Sale" : "Add to Sale"}
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => {
-                            setSelectedProduct(product)
-                            setIsDeleteProductOpen(true)
-                          }} className="text-red-600">
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setSelectedProduct(product);
+                              setIsDeleteProductOpen(true);
+                            }}
+                            className="text-red-600"
+                          >
                             <Trash className="w-4 h-4 mr-2" />
                             Delete
                           </DropdownMenuItem>
@@ -649,14 +686,20 @@ export default function ProductsPage() {
               </tbody>
             </table>
             {!loading && filteredProducts.length === 0 && (
-              <div className="text-center py-6 text-gray-500">No products found</div>
+              <div className="text-center py-6 text-gray-500">
+                No products found
+              </div>
             )}
           </div>
         </CardContent>
       </Card>
 
       {/* Modals */}
-      <AddProductDialog open={isAddProductOpen} onClose={() => setIsAddProductOpen(false)} onAdd={addProduct} />
+      <AddProductDialog
+        open={isAddProductOpen}
+        onClose={() => setIsAddProductOpen(false)}
+        onAdd={addProduct}
+      />
       {selectedProduct && (
         <>
           <EditProductDialog
@@ -665,12 +708,22 @@ export default function ProductsPage() {
             product={selectedProduct}
             onSave={updateProduct}
           />
-          <DeleteProductDialog
+          {/* <DeleteProductDialog
             open={isDeleteProductOpen}
             onClose={() => setIsDeleteProductOpen(false)}
             product={selectedProduct}
             onDelete={() => deleteProduct(selectedProduct._id)}
+          /> */}
+          <DeleteProductDialog
+            open={isDeleteProductOpen}
+            onClose={() => setIsDeleteProductOpen(false)}
+            product={selectedProduct}
+            onDelete={async () => {
+              await deleteProduct(selectedProduct._id);
+              setIsDeleteProductOpen(false); // close modal after delete
+            }}
           />
+
           <SaleProductDialog
             open={isSaleProductOpen}
             onClose={() => setIsSaleProductOpen(false)}
@@ -680,5 +733,5 @@ export default function ProductsPage() {
         </>
       )}
     </div>
-  )
+  );
 }
