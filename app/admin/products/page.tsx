@@ -579,13 +579,13 @@ export default function ProductsPage() {
                   <tr key={product._id}>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-3">
-                        <Image
-                          src={product.image || "/placeholder.svg"}
-                          alt={product.name}
-                          width={40}
-                          height={40}
-                          className="rounded-md object-cover"
-                        />
+                       <Image
+  src={`http://localhost:5000${product.image || "/placeholder.svg"}`}
+  alt={product.name}
+  width={40}
+  height={40}
+  className="rounded-md object-cover"
+/>
                         <div>
                           <div className="font-medium">{product.name}</div>
                           <div className="text-xs text-gray-500">
@@ -708,12 +708,7 @@ export default function ProductsPage() {
             product={selectedProduct}
             onSave={updateProduct}
           />
-          {/* <DeleteProductDialog
-            open={isDeleteProductOpen}
-            onClose={() => setIsDeleteProductOpen(false)}
-            product={selectedProduct}
-            onDelete={() => deleteProduct(selectedProduct._id)}
-          /> */}
+        
           <DeleteProductDialog
             open={isDeleteProductOpen}
             onClose={() => setIsDeleteProductOpen(false)}

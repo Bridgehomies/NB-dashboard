@@ -175,10 +175,10 @@
 //     </Dialog>
 //   )
 // }
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -186,103 +186,117 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 
 interface AddProductDialogProps {
-  open: boolean
-  onClose: () => void
-  onProductAdded?: () => void // optional callback after successful product add
+  open: boolean;
+  onClose: () => void;
+  onProductAdded?: () => void;
 }
 
-export function AddProductDialog({ open, onClose, onProductAdded }: AddProductDialogProps) {
+export function AddProductDialog({
+  open,
+  onClose,
+  onProductAdded,
+}: AddProductDialogProps) {
   const [formData, setFormData] = useState({
     name: "",
     price: "",
     category: "",
     subcategory: "",
     description: "",
-    image: "/placeholder.svg?height=400&width=300", // Default placeholder
     inStock: true,
     dateAdded: new Date().toISOString().split("T")[0],
     rating: 0,
     reviews: 0,
-  })
+  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData({ ...formData, [name]: value })
-  }
+  const [imageFile, setImageFile] = useState<File | null>(null);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
 
   const handleSelectChange = (name: string, value: string) => {
-    setFormData({ ...formData, [name]: value })
-  }
+    setFormData({ ...formData, [name]: value });
+  };
 
   const handleSwitchChange = (name: string, checked: boolean) => {
-    setFormData({ ...formData, [name]: checked })
-  }
+    setFormData({ ...formData, [name]: checked });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    const numericPrice = Number.parseFloat(formData.price)
+    const numericPrice = Number.parseFloat(formData.price);
     if (isNaN(numericPrice)) {
-      alert("Please enter a valid price")
-      return
+      alert("Please enter a valid price");
+      return;
     }
 
-    const productToSend = {
-      ...formData,
-      price: numericPrice,
-      rating: Number(formData.rating) || 0,
-      reviews: Number(formData.reviews) || 0,
+    const data = new FormData();
+    data.append("name", formData.name);
+    data.append("price", numericPrice.toString());
+    data.append("category", formData.category);
+    data.append("subcategory", formData.subcategory);
+    data.append("description", formData.description);
+    data.append("inStock", String(formData.inStock));
+    data.append("dateAdded", formData.dateAdded);
+    data.append("rating", String(formData.rating));
+    data.append("reviews", String(formData.reviews));
+    if (imageFile) {
+      data.append("image", imageFile);
     }
 
     try {
       const response = await fetch("http://localhost:5000/api/products", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(productToSend),
-      })
+        body: data,
+      });
 
       if (!response.ok) {
-        throw new Error("Failed to add product")
+        throw new Error("Failed to add product");
       }
 
-      const data = await response.json()
-      alert("Product added successfully!")
+      const result = await response.json();
+      alert("Product added successfully!");
 
-      // Optional: trigger parent refresh
       if (onProductAdded) {
-        onProductAdded()
+        onProductAdded();
       }
 
-      // Reset form
       setFormData({
         name: "",
         price: "",
         category: "",
         subcategory: "",
         description: "",
-        image: "/placeholder.svg?height=400&width=300",
         inStock: true,
         dateAdded: new Date().toISOString().split("T")[0],
         rating: 0,
         reviews: 0,
-      })
-
-      onClose()
+      });
+      setImageFile(null);
+      onClose();
     } catch (error) {
-      console.error(error)
-      alert("Error adding product. Please try again.")
+      console.error(error);
+      alert("Error adding product. Please try again.");
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -290,13 +304,22 @@ export function AddProductDialog({ open, onClose, onProductAdded }: AddProductDi
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Add New Product</DialogTitle>
-            <DialogDescription>Add a new product to your inventory. Click save when you're done.</DialogDescription>
+            <DialogDescription>
+              Add a new product to your inventory. Click save when you're done.
+            </DialogDescription>
           </DialogHeader>
+
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Product Name</Label>
-                <Input id="name" name="name" value={formData.name} onChange={handleChange} required />
+                <Input
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="price">Price</Label>
@@ -316,7 +339,12 @@ export function AddProductDialog({ open, onClose, onProductAdded }: AddProductDi
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
-                <Select value={formData.category} onValueChange={(value) => handleSelectChange("category", value)}>
+                <Select
+                  value={formData.category}
+                  onValueChange={(value) =>
+                    handleSelectChange("category", value)
+                  }
+                >
                   <SelectTrigger id="category">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
@@ -329,7 +357,12 @@ export function AddProductDialog({ open, onClose, onProductAdded }: AddProductDi
               </div>
               <div className="space-y-2">
                 <Label htmlFor="subcategory">Subcategory</Label>
-                <Input id="subcategory" name="subcategory" value={formData.subcategory} onChange={handleChange} />
+                <Input
+                  id="subcategory"
+                  name="subcategory"
+                  value={formData.subcategory}
+                  onChange={handleChange}
+                />
               </div>
             </div>
 
@@ -345,25 +378,45 @@ export function AddProductDialog({ open, onClose, onProductAdded }: AddProductDi
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="image">Image URL</Label>
-              <Input id="image" name="image" value={formData.image} onChange={handleChange} />
+              <Label htmlFor="image">Upload Image</Label>
+              <Input
+                id="image"
+                name="image"
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setImageFile(file);
+                  }
+                }}
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="dateAdded">Date Added</Label>
-                <Input id="dateAdded" name="dateAdded" type="date" value={formData.dateAdded} onChange={handleChange} />
+                <Input
+                  id="dateAdded"
+                  name="dateAdded"
+                  type="date"
+                  value={formData.dateAdded}
+                  onChange={handleChange}
+                />
               </div>
               <div className="flex items-center space-x-2 pt-6">
                 <Switch
                   id="inStock"
                   checked={formData.inStock}
-                  onCheckedChange={(checked) => handleSwitchChange("inStock", checked)}
+                  onCheckedChange={(checked) =>
+                    handleSwitchChange("inStock", checked)
+                  }
                 />
                 <Label htmlFor="inStock">In Stock</Label>
               </div>
             </div>
           </div>
+
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
@@ -373,5 +426,5 @@ export function AddProductDialog({ open, onClose, onProductAdded }: AddProductDi
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
