@@ -455,6 +455,27 @@ export default function ProductsPage() {
     });
     fetchProducts();
   };
+  const addProductToSale = async (productId: string, salePrice: number) => {
+    try {
+      const res = await fetch(`/api/products/${productId}/sale`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ salePrice }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        alert(`Failed: ${error.error}`);
+        return;
+      }
+
+      const updatedProduct = await res.json();
+      // Refresh your product list or update state accordingly
+      console.log("Product updated:", updatedProduct);
+    } catch (err) {
+      alert("Error updating sale price");
+    }
+  };
 
   // Filter & Sort
   const filteredProducts = products
@@ -579,13 +600,15 @@ export default function ProductsPage() {
                   <tr key={product._id}>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-3">
-                       <Image
-  src={`http://localhost:5000${product.image || "/placeholder.svg"}`}
-  alt={product.name}
-  width={40}
-  height={40}
-  className="rounded-md object-cover"
-/>
+                        <Image
+                          src={`http://localhost:5000${
+                            product.image || "/placeholder.svg"
+                          }`}
+                          alt={product.name}
+                          width={40}
+                          height={40}
+                          className="rounded-md object-cover"
+                        />
                         <div>
                           <div className="font-medium">{product.name}</div>
                           <div className="text-xs text-gray-500">
@@ -708,7 +731,7 @@ export default function ProductsPage() {
             product={selectedProduct}
             onSave={updateProduct}
           />
-        
+
           <DeleteProductDialog
             open={isDeleteProductOpen}
             onClose={() => setIsDeleteProductOpen(false)}
@@ -723,7 +746,10 @@ export default function ProductsPage() {
             open={isSaleProductOpen}
             onClose={() => setIsSaleProductOpen(false)}
             product={selectedProduct}
-            onSave={(price) => toggleProductSale(selectedProduct._id, price)}
+            onSave={(salePrice) => {
+              addProductToSale(selectedProduct._id, salePrice);
+              setIsSaleProductOpen(false);
+            }}
           />
         </>
       )}
