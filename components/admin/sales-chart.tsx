@@ -1,4 +1,4 @@
-// Path: NB-dashboard/app/admin/orders/page.tsx
+// Path: NB-dashboard/app/components/admin/sales-chart.tsx
 
 "use client"
 
