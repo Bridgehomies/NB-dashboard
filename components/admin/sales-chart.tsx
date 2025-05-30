@@ -1,62 +1,26 @@
+// Path: NB-dashboard/app/admin/orders/page.tsx
+
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-// Sample data for the last 30 days
-const generateSalesData = () => {
-  const data = []
-  const now = new Date()
-
-  for (let i = 29; i >= 0; i--) {
-    const date = new Date(now)
-    date.setDate(date.getDate() - i)
-
-    // Generate random sales data
-    const revenue = Math.floor(Math.random() * 1000) + 500
-    const orders = Math.floor(Math.random() * 20) + 5
-
-    data.push({
-      date: date.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-      revenue,
-      orders,
-    })
-  }
-
-  return data
-}
-
-// Sample data for the last 12 months
-const generateMonthlySalesData = () => {
-  const data = []
-  const now = new Date()
-
-  for (let i = 11; i >= 0; i--) {
-    const date = new Date(now)
-    date.setMonth(date.getMonth() - i)
-
-    // Generate random sales data
-    const revenue = Math.floor(Math.random() * 20000) + 10000
-    const orders = Math.floor(Math.random() * 200) + 100
-
-    data.push({
-      date: date.toLocaleDateString("en-US", { month: "short" }),
-      revenue,
-      orders,
-    })
-  }
-
-  return data
-}
-
 export function SalesChart() {
   const [timeRange, setTimeRange] = useState("30days")
   const [dataType, setDataType] = useState("revenue")
+  const [chartData, setChartData] = useState([])
 
-  // Choose data based on selected time range
-  const chartData = timeRange === "30days" ? generateSalesData() : generateMonthlySalesData()
+  useEffect(() => {
+    const endpoint =
+      timeRange === "30days" ? "http://localhost:5000/api/sales-chart" : "http://localhost:5000/api/sales-chart?range=12months"
+
+    fetch(endpoint)
+      .then(res => res.json())
+      .then(setChartData)
+      .catch(err => console.error("Failed to fetch chart data:", err))
+  }, [timeRange])
 
   return (
     <div className="space-y-4">
@@ -91,24 +55,16 @@ export function SalesChart() {
 
       <div className="h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            data={chartData}
-            margin={{
-              top: 20,
-              right: 30,
-              left: 20,
-              bottom: 60,
-            }}
-          >
+          <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" angle={-45} textAnchor="end" height={70} tick={{ fontSize: 12 }} />
+            <XAxis dataKey="_id" angle={-45} textAnchor="end" height={70} tick={{ fontSize: 12 }} />
             <YAxis />
-            <Tooltip formatter={(value) => (dataType === "revenue" ? `$${value}` : value)} />
+            <Tooltip formatter={value => (dataType === "revenue" ? `$${value}` : value)} />
             <Legend />
             {dataType === "revenue" ? (
-              <Bar dataKey="revenue" name="Revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="totalRevenue" name="Revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
             ) : (
-              <Bar dataKey="orders" name="Orders" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="totalOrders" name="Orders" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
             )}
           </BarChart>
         </ResponsiveContainer>
