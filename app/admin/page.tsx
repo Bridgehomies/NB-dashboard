@@ -1,3 +1,6 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { DollarSign, Users, ShoppingBag, TrendingUp } from "lucide-react"
 import { SalesChart } from "@/components/admin/sales-chart"
@@ -5,6 +8,36 @@ import { RecentOrders } from "@/components/admin/recent-orders"
 import { TopProducts } from "@/components/admin/top-products"
 
 export default function AdminDashboard() {
+  const [metrics, setMetrics] = useState({
+    totalRevenue: 0,
+    totalOrders: 0,
+    totalCustomers: 0,
+    conversionRate: "0.00",
+    prev: {
+      totalRevenue: 0,
+      totalOrders: 0,
+      totalCustomers: 0,
+      conversionRate: "0.00",
+    },
+  });
+
+  const calcDelta = (current: number, prev: number) => {
+    if (!prev || prev === 0) return "N/A";
+    const delta = ((current - prev) / prev) * 100;
+    const isNegative = delta < 0;
+    const sign = isNegative ? "" : "+";
+    return `${sign}${delta.toFixed(1)}%`;
+  };
+  
+  
+
+  useEffect(() => {
+    fetch("http://localhost:5000/api/dashboard-metrics")
+      .then(res => res.json())
+      .then(data => setMetrics(data))
+      .catch(err => console.error("Failed to load metrics", err))
+  }, [])
+
   return (
     <div className="space-y-6">
       <div>
@@ -19,11 +52,7 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-500">Total Revenue</p>
-                <h3 className="text-2xl font-bold">$24,780</h3>
-                <p className="text-sm text-green-500 flex items-center mt-1">
-                  <TrendingUp className="h-4 w-4 mr-1" />
-                  +12.5% from last month
-                </p>
+                <h3 className="text-2xl font-bold">${metrics.totalRevenue.toLocaleString()}</h3>
               </div>
               <div className="bg-primary/10 p-3 rounded-full">
                 <DollarSign className="h-6 w-6 text-primary" />
@@ -37,11 +66,7 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-500">Total Orders</p>
-                <h3 className="text-2xl font-bold">384</h3>
-                <p className="text-sm text-green-500 flex items-center mt-1">
-                  <TrendingUp className="h-4 w-4 mr-1" />
-                  +8.2% from last month
-                </p>
+                <h3 className="text-2xl font-bold">{metrics.totalOrders}</h3>
               </div>
               <div className="bg-primary/10 p-3 rounded-full">
                 <ShoppingBag className="h-6 w-6 text-primary" />
@@ -55,11 +80,7 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-500">Total Customers</p>
-                <h3 className="text-2xl font-bold">1,284</h3>
-                <p className="text-sm text-green-500 flex items-center mt-1">
-                  <TrendingUp className="h-4 w-4 mr-1" />
-                  +5.3% from last month
-                </p>
+                <h3 className="text-2xl font-bold">{metrics.totalCustomers}</h3>
               </div>
               <div className="bg-primary/10 p-3 rounded-full">
                 <Users className="h-6 w-6 text-primary" />
@@ -73,11 +94,7 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-500">Conversion Rate</p>
-                <h3 className="text-2xl font-bold">3.2%</h3>
-                <p className="text-sm text-red-500 flex items-center mt-1">
-                  <TrendingUp className="h-4 w-4 mr-1 transform rotate-180" />
-                  -0.4% from last month
-                </p>
+                <h3 className="text-2xl font-bold">{metrics.conversionRate}%</h3>
               </div>
               <div className="bg-primary/10 p-3 rounded-full">
                 <TrendingUp className="h-6 w-6 text-primary" />
