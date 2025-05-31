@@ -1,13 +1,29 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { DollarSign, Users, ShoppingBag, TrendingUp } from "lucide-react"
-import { SalesChart } from "@/components/admin/sales-chart"
-import { RecentOrders } from "@/components/admin/recent-orders"
-import { TopProducts } from "@/components/admin/top-products"
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import withAuth from "../utils/withAuth";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  DollarSign,
+  Users,
+  ShoppingBag,
+  TrendingUp,
+  LogOut,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { SalesChart } from "@/components/admin/sales-chart";
+import { RecentOrders } from "@/components/admin/recent-orders";
+import { TopProducts } from "@/components/admin/top-products";
 
-export default function AdminDashboard() {
+function AdminDashboard() {
+  const router = useRouter();
   const [metrics, setMetrics] = useState({
     totalRevenue: 0,
     totalOrders: 0,
@@ -21,28 +37,29 @@ export default function AdminDashboard() {
     },
   });
 
-  const calcDelta = (current: number, prev: number) => {
-    if (!prev || prev === 0) return "N/A";
-    const delta = ((current - prev) / prev) * 100;
-    const isNegative = delta < 0;
-    const sign = isNegative ? "" : "+";
-    return `${sign}${delta.toFixed(1)}%`;
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    router.push("/");
   };
-  
-  
 
   useEffect(() => {
     fetch("http://localhost:5000/api/dashboard-metrics")
-      .then(res => res.json())
-      .then(data => setMetrics(data))
-      .catch(err => console.error("Failed to load metrics", err))
-  }, [])
+      .then((res) => res.json())
+      .then((data) => setMetrics(data))
+      .catch((err) => console.error("Failed to load metrics", err));
+  }, []);
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-gray-500">Welcome back, Admin</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          {/* <p className="text-gray-500">Welcome back, Admin</p> */}
+        </div>
+        <Button variant="outline" onClick={handleLogout}>
+          <LogOut className="h-4 w-4 mr-2" />
+          Logout
+        </Button>
       </div>
 
       {/* Overview Cards */}
@@ -104,7 +121,6 @@ export default function AdminDashboard() {
         </Card>
       </div>
 
-      {/* Sales Chart */}
       <Card>
         <CardHeader>
           <CardTitle>Sales Overview</CardTitle>
@@ -115,7 +131,6 @@ export default function AdminDashboard() {
         </CardContent>
       </Card>
 
-      {/* Recent Orders and Top Products */}
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
@@ -138,5 +153,7 @@ export default function AdminDashboard() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
+
+export default withAuth(AdminDashboard);
