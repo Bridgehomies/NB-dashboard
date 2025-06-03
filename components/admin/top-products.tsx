@@ -8,9 +8,10 @@ import { Progress } from "@/components/ui/progress"
 
 export function TopProducts() {
   interface Product {
-    _id: string;
+    _id: string; // product name
     totalSold: number;
     totalRevenue: number;
+    image: string; // <-- now included!
   }
 
   const [products, setProducts] = useState<Product[]>([])
@@ -29,10 +30,16 @@ export function TopProducts() {
       {products.map((product, index) => (
         <div key={index} className="flex items-center space-x-4">
           <div className="relative h-12 w-12 overflow-hidden rounded-md border">
-            <Image src="/placeholder.svg" alt={product._id} fill className="object-cover" />
+            <Image
+              src={product.image || "/placeholder.svg"}
+              alt={product._id} // since _id is the name
+              fill
+              className="object-cover"
+            />
+
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">{product._id}</p>
+            <p className="text-sm font-medium truncate">{product._id}</p>          
             <div className="flex items-center justify-between text-xs text-gray-500 mt-1">
               <span>${product.totalRevenue.toFixed(2)}</span>
               <span>{product.totalSold} sold</span>

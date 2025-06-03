@@ -35,7 +35,7 @@ export function AdminSidebar({ navItems }: AdminSidebarProps) {
           {collapsed ? (
             <span className="font-bold text-xl">NB</span>
           ) : (
-            <span className="font-bold text-xl">NabeeraBaeera</span>
+            <span className="font-bold text-xl">NabeeraBareera</span>
           )}
         </Link>
       </div>

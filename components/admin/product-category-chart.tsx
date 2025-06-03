@@ -5,7 +5,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recha
 // Sample data for product categories
 const data = [
   { name: "Jewelry", value: 42, color: "#FF6384" },
-  { name: "Men's Coats", value: 28, color: "#36A2EB" },
+  { name: "Coats", value: 28, color: "#36A2EB" },
   { name: "Kids Clothing", value: 30, color: "#FFCE56" },
 ]
 

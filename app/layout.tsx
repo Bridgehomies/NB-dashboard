@@ -1,21 +1,16 @@
-import type React from "react"
+import { AuthProvider } from "@/context/auth-context"
 import { Header } from "@/components/layout/header"
 import { Footer } from "@/components/layout/footer"
 import { ThemeProvider } from "@/components/theme-provider"
 import "./globals.css"
 
 export const metadata = {
-  title: "NabeeraBaeera - Artificial Jewelry, Men's Coats & Kids Clothing",
+  title: "NabeeraBareera - Artificial Jewelry, Coats & Kids Clothing",
   description:
-    "Discover exquisite artificial jewelry, stylish men's coats, and adorable kids clothing at NabeeraBaeera.",
-    generator: 'v0.dev'
+    "Discover exquisite artificial jewelry, stylish Coats, and adorable kids clothing at NabeeraBareera.",
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -28,9 +23,11 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-background font-sans antialiased pattern-bg">
         <ThemeProvider attribute="class" defaultTheme="light">
-          <Header />
-          <main className="pt-20">{children}</main>
-          <Footer />
+          <AuthProvider>
+            
+            <main className="pt-20">{children}</main>
+            
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

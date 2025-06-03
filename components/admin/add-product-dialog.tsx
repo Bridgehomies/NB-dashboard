@@ -122,7 +122,7 @@
 //                   </SelectTrigger>
 //                   <SelectContent>
 //                     <SelectItem value="jewelry">Jewelry</SelectItem>
-//                     <SelectItem value="mens-coats">Men's Coats</SelectItem>
+//                     <SelectItem value="mens-coats">Coats</SelectItem>
 //                     <SelectItem value="kids-clothing">Kids Clothing</SelectItem>
 //                   </SelectContent>
 //                 </Select>
@@ -350,7 +350,7 @@ export function AddProductDialog({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="jewelry">Jewelry</SelectItem>
-                    <SelectItem value="mens-coats">Men's Coats</SelectItem>
+                    <SelectItem value="mens-coats">Coats</SelectItem>
                     <SelectItem value="kids-clothing">Kids Clothing</SelectItem>
                   </SelectContent>
                 </Select>
